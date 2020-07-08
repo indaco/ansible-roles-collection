@@ -1,0 +1,34 @@
+---
+
+- name: Update apt cache if repo was added
+  become: yes
+  apt: update_cache=yes
+
+- name: Install Certbot
+  become: yes
+  apt:
+    name: python-certbot-nginx
+    state: present
+
+- name: Check if certificate already exists.
+  stat:
+    path: /etc/letsencrypt/live/{{ website_name }}/cert.pem
+  register: letsencrypt_cert
+
+- name: Stop services to allow certbot to generate a cert.
+  service:
+    name: nginx
+    state: stopped
+
+- name: Generate and install an SSL certificate redirecting all the traffic to https
+  become: yes
+  shell: |
+    certbot --nginx --noninteractive
+    --agree-tos --email {{ certbot_admin_email }} --redirect
+    -d {{ website_name }} -d www.{{ website_name }}
+  when: letsencrypt_cert.exists == False
+
+- name: Start services after cert has been generated.
+  service:
+    name: nginx
+    state: started

@@ -1,0 +1,36 @@
+---
+# tasks file for roles/python38openssl
+
+- name: Get dependencies
+  include_tasks: dependencies.yml
+
+- name: OpenSSL Installation
+  include_tasks: openssl.yml
+
+- name: Python 3.8 Installation
+  include_tasks: python38.yml
+
+- name: Check Python v.{{ python_version }}
+  shell: "{{ python_bin }} --version"
+  register: check_python
+
+- debug:
+    var: check_python.stdout
+
+- name: Get the shell for {{ ansible_user }}
+  shell: echo "$SHELL"
+  register: shell_output
+
+- name: Make Python 3.8 as the default python interpreter for {{ ansible_user }} as Bash alias
+  lineinfile:
+    path: "~{{ ansible_user }}/.bashrc"
+    insertafter: EOF
+    line: 'alias python="{{ python_bin }}"'
+  when: '"bash" in shell_output.stdout'
+
+- name: Make Python 3.8 as the default python interpreter for {{ ansible_user }} as ZSH alias
+  lineinfile:
+    path: "~{{ ansible_user }}/.zshrc"
+    insertafter: EOF
+    line: 'alias python="{{ python_bin }}"'
+  when: '"zsh" in shell_output.stdout'

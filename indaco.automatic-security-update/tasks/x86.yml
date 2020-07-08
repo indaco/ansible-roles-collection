@@ -1,0 +1,17 @@
+---
+
+- name: Install required packages [x86]
+  become: yes
+  apt:
+    name:
+      - unattended-upgrades
+      - update-notifier-common
+    state: present
+  tags: packages
+
+- name: Enable Email notification after each security update
+  become: yes
+  lineinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^//Unattended-Upgrade::Mail "root";'
+    line: 'Unattended-Upgrade::Mail "{{ ansible_user }}";'

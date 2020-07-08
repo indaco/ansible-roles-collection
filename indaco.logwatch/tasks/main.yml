@@ -1,0 +1,54 @@
+---
+# tasks file for exercise-15-logwatch/roles/logwatch
+
+- name: Install LogWatch
+  become: yes
+  apt:
+    name: logwatch
+    state: present
+
+- name: Check if nginx is installed
+  stat:
+    path: /usr/sbin/nginx
+  register: check_nginx
+
+- name: Copying LogWatch logfile configuration for Nginx
+  become: yes
+  copy:
+    src: etc/logwatch/conf/logfiles/nginx.conf
+    dest: /etc/logwatch/conf/logfiles/nginx.conf
+  when: check_nginx.stat.exists
+
+- name: Copying LogWatch services files for Nginx
+  become: yes
+  copy:
+    src: etc/logwatch/conf/services/{{ item }}
+    dest: /etc/logwatch/conf/services/{{ item }}
+  with_items:
+    - nginx.conf
+    - nginx-error.conf
+  when: check_nginx.stat.exists
+
+- name: Copying LogWatch scripts file for Nginx
+  become: yes
+  copy:
+    src: usr/share/logwatch/scripts/services/{{ item }}
+    dest: /usr/share/logwatch/scripts/services/{{ item }}
+  with_items:
+    - nginx
+    - nginx-error
+  when: check_nginx.stat.exists
+
+- name: Deactivating temp dir
+  become: yes
+  lineinfile:
+    path: /usr/share/logwatch/default.conf/logwatch.conf
+    regexp: "^TmpDir = /var/cache/logwatch"
+    line: "#TmpDir = /var/cache/logwatch"
+
+- name: Setting log level to Med
+  become: yes
+  lineinfile:
+    path: /usr/share/logwatch/default.conf/logwatch.conf
+    regexp: "^Detail ="
+    line: "Detail = Med"

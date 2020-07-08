@@ -1,0 +1,27 @@
+---
+# vars file for roles/python38openssl
+
+list_of_prerequisistes:
+  - build-essential
+  - tk-dev
+  - libncurses5-dev
+  - libncursesw5-dev
+  - libreadline6-dev
+  - libdb5.3-dev
+  - libgdbm-dev
+  - libsqlite3-dev
+  - libssl-dev
+  - libbz2-dev
+  - libexpat1-dev
+  - liblzma-dev
+  - zlib1g-dev
+  - libffi-dev
+
+openssl_dir: 'openssl-{{ openssl_version }}'
+openssl_filename: '{{ openssl_dir }}.tar.gz'
+openssl_download_url: 'https://www.openssl.org/source/{{ openssl_filename }}'
+
+python_dir: 'Python-{{ python_version }}'
+python_filename: '{{ python_dir }}.tgz'
+python_dowload_url: 'https://www.python.org/ftp/python/{{ python_version }}/{{ python_filename }}'
+python_bin: '/usr/local/bin/python3.8'

@@ -1,0 +1,44 @@
+---
+
+- name: Check if Python is already installed
+  stat:
+    path: '/usr/src/{{ python_dir }}'
+  register: check_python_dir
+
+- name: Donwload and Extract Python {{ python_version }}
+  become: yes
+  unarchive:
+    src: '{{ python_dowload_url }}'
+    dest: '/usr/src/'
+    remote_src: yes
+    validate_certs: no
+  when: check_python_dir.stat.exists == False
+
+- name: Run Python Configuration
+  become: yes
+  shell: './configure --enable-optimizations --with-openssl=/usr/src/{{ openssl_dir }}'
+  args:
+    chdir: '/usr/src/{{ python_dir }}'
+  environment:
+    LDFLAGS: -L/usr/local/lib/
+    LD_LIBRARY_PATH: /usr/local/lib/
+    CPPFLAGS: -I/usr/local/include -I/usr/local/include/openssl
+  when: check_python_dir.stat.exists == False
+
+- name: Run Python make
+  become: yes
+  shell: make -j -l 4
+  args:
+    chdir: '/usr/src/{{ python_dir }}'
+  when: check_python_dir.stat.exists == False
+
+- name: Run Python altinstall
+  become: yes
+  shell: make altinstall
+  args:
+    chdir: '/usr/src/{{ python_dir }}'
+  environment:
+    LDFLAGS: -L/usr/local/lib/
+    LD_LIBRARY_PATH: /usr/local/lib/
+    CPPFLAGS: -I/usr/local/include -I/usr/local/include/openssl
+  when: check_python_dir.stat.exists == False

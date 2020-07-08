@@ -1,0 +1,5 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - exercise-4-raspiconfig/roles/raspi_config

@@ -1,0 +1,36 @@
+---
+# tasks file for exercise-5-base/roles/base
+
+- name: Check the uptime prior reboot
+  command: uptime
+  register: UPTIME_PRE_REBOOT
+  changed_when: false
+
+- debug: msg={{ UPTIME_PRE_REBOOT.stdout }}
+
+- name: Update apt-get repo and cache
+  become: yes
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600 state=present
+  tags:
+    - packages
+
+- name: Upgrade apt
+  become: yes
+  apt: upgrade=yes
+  tags:
+    - packages
+
+- name: Upgrade all apt packages
+  become: yes
+  apt: upgrade=dist force_apt_get=yes
+  notify:
+    - Reboot host and wait for it to restart
+  tags:
+    - packages
+
+- name: Check the uptime post reboot
+  command: uptime
+  register: UPTIME_POST_REBOOT
+  changed_when: false
+
+- debug: msg={{ UPTIME_POST_REBOOT.stdout }}

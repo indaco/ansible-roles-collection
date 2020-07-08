@@ -1,0 +1,5 @@
+---
+# defaults file for roles/python38openssl
+
+openssl_version: 1.1.1g
+python_version: 3.8.3

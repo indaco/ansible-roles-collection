@@ -1,0 +1,74 @@
+---
+# tasks file for roles/webmin
+
+- name: Ensure dependencies are installed
+  become: yes
+  apt:
+    name:
+      - perl
+      - libnet-ssleay-perl
+      - openssl
+      - libauthen-pam-perl
+      - libpam-runtime
+      - libio-pty-perl
+      - apt-show-versions
+      - python
+      - apt-transport-https
+      - gnupg2
+      - ufw
+    state: present
+    autoclean: yes
+  tags:
+    - packages, webmin
+
+- name: Check if webmin.deb package is already installed
+  command: 'dpkg-query -W {{ webmin_deb_file }}'
+  register: webmin_package_check_deb
+  failed_when: webmin_package_check_deb.rc > 1
+  changed_when: webmin_package_check_deb.rc == 1
+  tags:
+    - packages, webmin
+
+- name: Download Webmin package
+  get_url:
+    url: 'https://prdownloads.sourceforge.net/webadmin/{{ webmin_deb_file }}'
+    dest: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
+  when: webmin_package_check_deb.rc == 1
+  tags:
+    - packages, webmin
+
+- name: Install webmin
+  become: yes
+  apt:
+    deb: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
+  when: webmin_package_check_deb.rc == 1
+  tags:
+    - packages, webmin
+
+- name: Clean up home folder
+  file:
+    path: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
+    state: absent
+
+- name: Allow Webmin default port on UFW
+  become: yes
+  ufw:
+    rule: allow
+    port: "{{ webmin_port }}"
+    proto: tcp
+  tags:
+    - firewall, webmin
+
+- name: Disable UFW
+  become: yes
+  ufw:
+    state: disabled
+  tags:
+    - firewall
+
+- name: Enable UFW
+  become: yes
+  ufw:
+    state: enabled
+  tags:
+    - firewall

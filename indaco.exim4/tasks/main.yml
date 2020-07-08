@@ -1,0 +1,64 @@
+---
+# tasks file for roles/exim
+
+- name: Install prerequisites for Exim4 configurations
+  become: yes
+  apt:
+    name:
+      - debconf
+      - debconf-utils
+    state: present
+  tags: packages, exim4
+
+- name: Install Exim4
+  become: yes
+  apt:
+    name: exim4
+    state: present
+  tags: packages, exim4
+
+- name: Configure update-exim4.conf.conf
+  become: yes
+  template:
+    src: etc/exim4/update-exim4.conf.j2
+    dest: /etc/exim4/update-exim4.conf.conf
+  notify:
+    - update exim4.conf
+  tags: packages, exim4
+
+- name: Setup logrotate
+  become: yes
+  template:
+    src: etc/logrotate.d/logrotate.j2
+    dest: "/etc/logrotate.d/{{ item.name }}"
+  with_items:
+    - "{{ exim4_logrotate_base }}"
+    - "{{ exim4_logrotate_paniclog }}"
+  tags: packages, exim4
+
+- name: Setup mail account details
+  become: yes
+  template:
+    src: etc/exim4/passwd.client.j2
+    dest: /etc/exim4/passwd.client
+  notify:
+    - update exim4.conf
+  tags: packages, exim4
+
+- name: Add aliases to /etc/aliases
+  become: yes
+  lineinfile:
+    path: /etc/aliases
+    insertafter: EOF
+    line: "{{ item }}"
+  with_items:
+    - "root: {{ ansible_user }}"
+    - "{{ ansible_user }}: {{ local_user_email }}"
+  notify:
+    - newaliases
+  tags: packages, exim4
+
+- name: Set a full name for user
+  become: yes
+  command: 'chfn -f {{ ansible_user }}@{{ inventory_hostname }}'
+  changed_when: false

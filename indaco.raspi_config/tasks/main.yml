@@ -1,0 +1,6 @@
+---
+# tasks file for exercise-4-raspiconfig/roles/raspi_config
+
+- import_tasks: config.yml
+
+- import_tasks: locale.yml

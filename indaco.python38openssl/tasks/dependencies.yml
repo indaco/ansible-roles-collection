@@ -1,0 +1,11 @@
+---
+
+- name: APT update
+  become: yes
+  apt: update_cache=yes
+
+- name: Install Prerequisistes
+  become: yes
+  apt:
+    name: "{{ list_of_prerequisistes }}"
+    state: present

@@ -1,0 +1,27 @@
+---
+# tasks file for roles/indaco.nginx
+
+- name: Install nginx
+  become: yes
+  apt: name=nginx state=present
+  tags:
+    - nginx
+
+- name: Copy nginx.conf file
+  become: yes
+  copy:
+    src: etc/nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+    backup: yes
+  notify:
+    - Restart Nginx
+  tags:
+    - nginx
+
+- name: Setup UFW
+  become: yes
+  ufw:
+    rule: allow
+    name: Nginx Full
+  tags:
+    - firewall, nginx

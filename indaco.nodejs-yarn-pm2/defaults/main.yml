@@ -1,0 +1,4 @@
+---
+# defaults file for roles/nodejs_pm2
+nodejs_version: '12.x'
+pm2_version: latest

@@ -1,0 +1,20 @@
+---
+# tasks file for roles/automatic-security-update
+
+- name: Update apt-get repo and cache
+  become: yes
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600 state=latest
+  tags: ['skip_ansible_lint']
+
+- include_tasks: arm.yml
+  when: '"arm" in ansible_architecture'
+
+- include_tasks: x86.yml
+  when:  '"x86_64" in ansible_architecture'
+
+- name: Auto Remove Unused Dependencies
+  become: yes
+  lineinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^//Unattended-Upgrade::Remove-Unused-Dependencies "false";'
+    line: 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'

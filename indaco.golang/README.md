@@ -1,0 +1,33 @@
+indaco.golang
+=========
+
+Install Go Lang, add bins to PATH based on the default shell
+
+
+
+Role Variables
+--------------
+
+[defaults]
+- golang_version
+
+[vars]
+
+- golang_ubuntu_file: 'go{{ golang_version }}.linux-amd64.tar.gz'
+- golang_ubuntu_link: 'https://dl.google.com/go/{{ golang_ubuntu_file }}'
+- golang_raspian_file: 'go{{ golang_version }}.linux-armv6l.tar.gz'
+- golang_raspian_link: 'https://dl.google.com/go/{{ golang_raspian_file }}'
+- go_installation_dir: /usr/local
+- go_bin: '{{go_installation_dir}}/go/bin/go'
+
+Example Playbook
+----------------
+
+    - hosts: servers
+      roles:
+         - role: indaco.golang
+
+License
+-------
+
+CC-BY-4.0

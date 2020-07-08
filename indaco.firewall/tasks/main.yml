@@ -1,0 +1,42 @@
+---
+# tasks file for roles/firewall
+
+- name: Install UFW
+  become: yes
+  apt:
+    name:
+      - ufw
+    state: present
+    autoclean: yes
+  tags:
+    - packages
+
+- name: Allow OpenSSH on UFW
+  become: yes
+  ufw:
+    rule: allow
+    name: OpenSSH
+  tags:
+    - firewall, openssh
+
+- name: Enable UFW
+  become: yes
+  ufw:
+    state: enabled
+  tags:
+    - firewall
+
+- name: Set UFW logging
+  become: yes
+  ufw:
+    logging: 'on'
+  tags:
+    - firewall
+
+- name: Enable UFW at startup
+  become: yes
+  systemd:
+    state: started
+    name: ufw
+  tags:
+    - firewall

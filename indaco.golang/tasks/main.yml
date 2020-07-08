@@ -1,0 +1,68 @@
+---
+
+- name: Check if Go is already installed
+  stat:
+    path: "{{ go_bin }}"
+  register: result
+
+- name: Download and Extract Go to  {{ go_installation_dir }} - x86_64
+  become: yes
+  unarchive:
+    src: "{{ golang_ubuntu_link }}"
+    dest: "{{ go_installation_dir}}"
+    remote_src: yes
+  when:  '"x86_64" in ansible_architecture and result.stat.exists == False'
+  tags:
+    - packages, golang
+
+- name: Download and Extract Go to {{ go_installation_dir }} - ARM
+  become: yes
+  unarchive:
+    src: "{{ golang_raspian_link }}"
+    dest: "{{ go_installation_dir}}"
+    remote_src: yes
+  when: '"arm" in ansible_architecture and result.stat.exists == False'
+  tags:
+    - packages, golang
+
+- name: Check Go v.{{ golang_version }}
+  shell: "{{ go_bin }} version"
+  register: check_go_version
+
+- debug:
+    var: check_go_version.stdout
+
+- name: Check GOHOME already exists
+  stat:
+    path: "/home/{{ ansible_user }}/golang/src"
+  register: gohome_folder
+
+- name: Create GOHOME for Go development
+  file:
+    path: "/home/{{ ansible_user }}/golang/src"
+    state: directory
+    recurse: yes
+  when: gohome_folder.stat.exists == False
+  tags:
+    - packages, golang
+
+- name: Get the shell for {{ ansible_user }}
+  shell: echo "$SHELL"
+  register: shell_output
+
+- name: Add Go bin the PATH
+  become: yes
+  lineinfile:
+    path: '/home/{{ ansible_user }}/.zshrc'
+    regexp: '^export PATH='
+    line: 'export PATH=$HOME/bin:/usr/local/bin:/usr/local/go/bin:$PATH'
+  when: golang_version in check_go_version.stdout
+
+- name: Add GOPATH variable to .zshrc
+  become: yes
+  lineinfile:
+    path: '/home/{{ ansible_user }}/.zshrc'
+    insertafter: '^export PATH='
+    state: present
+    line: 'export GOPATH=$HOME/golang'
+  when: golang_version in check_go_version.stdout

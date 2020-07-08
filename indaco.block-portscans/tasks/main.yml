@@ -1,0 +1,99 @@
+---
+# tasks file for roles/indaco.block-portscans
+
+- name: Ensure Fail2Ban and UFW are installed
+  become: yes
+  apt:
+    name:
+      - fail2ban
+      - ufw
+    state: present
+
+- name: Disable IPv6 on UFW
+  become: yes
+  lineinfile:
+    path: /etc/default/ufw
+    regex: "^IPV6=yes"
+    line: "IPV6=no"
+
+- name: Allow OpenSSH on UFW
+  become: yes
+  ufw:
+    rule: allow
+    name: OpenSSH
+    state: enabled
+
+- name: allow SSH port 22 on UFW
+  become: yes
+  ufw:
+    rule: allow
+    port: '22'
+    state: enabled
+
+- name: UFW deny Incoming
+  become: yes
+  ufw:
+    policy: deny
+    direction: incoming
+    state: enabled
+
+- name: UFW - allow outgoing
+  become: yes
+  ufw:
+    policy: allow
+    direction: outgoing
+    state: enabled
+
+- name: UFW - Set logging to Low
+  become: yes
+  ufw:
+    logging: low
+    state: enabled
+
+- name: Disable UFW
+  become: yes
+  ufw:
+    state: disabled
+
+- name: Enable UFW
+  become: yes
+  ufw:
+    state: enabled
+
+- name: Setup an action rule for UFW
+  become: yes
+  copy:
+    src: etc/fail2ban/action.d/ufw.conf
+    dest: /etc/fail2ban/action.d/ufw.conf
+
+- name: Setup a filter for log file to know when to ban a user
+  become: yes
+  copy:
+    src: etc/fail2ban/filter.d/portscan.conf
+    dest: /etc/fail2ban/filter.d/portscan.conf
+
+- name: Define whitelist
+  become: yes
+  lineinfile:
+    path: /etc/fail2ban/jail.local
+    regexp: "^#ignoreip = 127.0.0.1/8 ::1"
+    line: "ignoreip = 192.168.1.0/24"
+
+- name: Add a portscan rule to jail.local file
+  become: yes
+  blockinfile:
+    path: /etc/fail2ban/jail.local
+    state: present
+    insertafter: EF
+    block: |
+      [portscan]
+
+      enabled  = true
+      filter   = portscan
+      logpath  = /var/log/ufw.log
+      action   = ufw
+      maxretry = 5
+
+- name: Restart Fail2Ban
+  become: yes
+  service: name=fail2ban state=restarted

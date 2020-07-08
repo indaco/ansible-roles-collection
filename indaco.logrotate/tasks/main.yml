@@ -1,0 +1,17 @@
+---
+# tasks file for roles/indaco.logrotate
+
+- name: Install logrotate
+  become: yes
+  apt:
+    name: logrotate
+    state: present
+  when: logrotate_script is defined
+
+- name: Setup logrotate logrotate scripts
+  become: yes
+  template:
+    src: etc/logrotate.d/script.d.j2
+    dest: /etc/logrotate.d/{{ item.name }}
+  loop: "{{ logrotate_scripts }}"
+  when: logrotate_script is defined

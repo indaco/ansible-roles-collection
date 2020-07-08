@@ -1,0 +1,75 @@
+---
+
+- name: Check hostname
+  become: yes
+  command: raspi-config nonint get_hostname
+  register: hostname_out
+  changed_when: false
+
+- name: Set hostname to '{{ system_hostname }}'
+  become: yes
+  command: raspi-config nonint do_hostname {{ system_hostname }}
+  when: system_hostname != hostname_out.stdout
+  changed_when: false
+  tags:
+    - raspi_config
+
+- name: Set Boot CLI
+  become: yes
+  command: raspi-config nonint do_boot_behaviour {{ raspi_config_boot_cli }}
+  changed_when: false
+  tags:
+    - raspi_config
+
+- name: Is camera enabled?
+  become: yes
+  command: raspi-config nonint get_camera
+  register: current_camera_value
+  changed_when: false
+
+- name: Disable Camera module
+  become: yes
+  command: raspi-config nonint do_camera {{ raspi_config_enable_camera }}
+  when: current_camera_value.stdout|int != raspi_config_enable_camera
+  changed_when: false
+  tags:
+    - raspi_config
+
+- name: Is Expand FS possible?
+  become: yes
+  command: raspi-config nonint get_can_expand
+  register: check_expand
+  changed_when: false
+  tags:
+    - raspi_config
+
+- name: Expand FS
+  become: yes
+  command: raspi-config nonint do_expand_rootfs
+  when: check_expand.stdout != "0" and raspi_config_expanded_filesystem
+  changed_when: false
+  tags:
+    - raspi_config
+
+- name: Get actual Memory Split value
+  become: yes
+  command: raspi-config nonint get_config_var gpu_mem /boot/config.txt
+  register: current_memory_split_value
+  changed_when: false
+
+- name: Set Memory Split to '{{ raspi_config_memory_split_gpu }}'
+  become: yes
+  command: raspi-config nonint do_memory_split {{ raspi_config_memory_split_gpu }}
+  when: current_memory_split_value.stdout|int != raspi_config_memory_split_gpu
+  changed_when: false
+  tags:
+    - raspi_config
+
+- name: Reboot host and wait for it to restart
+  become: yes
+  reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30

@@ -1,0 +1,45 @@
+---
+
+- name: Create the web site folders
+  become: yes
+  file:
+    path: "{{ site_root_folder }}/{{ website_name }}/{{ item }}"
+    state: directory
+  with_items:
+    - www
+    - logs
+
+- name: Copy the website files to nginx server block folder
+  become: yes
+  copy:
+    src: www/
+    dest: "{{ site_root_folder }}/{{ website_name }}/www"
+
+- name: Set folders permissions
+  become: yes
+  file:
+    path: "{{ site_root_folder }}/{{ website_name }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+    recurse: yes
+
+- name: Copy Server Block file
+  become: yes
+  copy:
+    src: etc/nginx/sites-available/{{ website_name }}.conf
+    dest: "{{ nginx_sites_available_folder }}/{{ website_name }}.conf"
+
+- name: Enable the web site - create a symbolic link
+  become: yes
+  file:
+    src: "{{ nginx_sites_available_folder}}/{{ website_name }}.conf"
+    dest: "{{ nginx_sites_enabled_folder}}/{{ website_name }}.conf"
+    state: link
+
+- name: Remove nginx default site from sites-enabled
+  become: yes
+  file:
+    path: "{{ nginx_sites_enabled_folder }}/default"
+    state: absent

@@ -1,0 +1,23 @@
+---
+# tasks file for roles/ohmyzsh
+
+- name: Check folder exists
+  stat:
+    path: '~{{ ansible_user }}/.oh-my-zsh'
+  register: result
+
+- name: Getting ZSH plugins installed
+  git:
+    repo: 'https://github.com/zsh-users/{{ item }}.git'
+    dest: '~{{ ansible_user }}/.oh-my-zsh/custom/plugins/{{ item }}'
+    version: latest
+  with_items: "{{ plugins }}"
+  when: result.stat.exists and result.stat.isdir
+
+- name: Customize default theme
+  copy:
+    src: files/robbyrussell.zsh-theme
+    dest: '~{{ ansible_user }}/.oh-my-zsh/themes/robbyrussell.zsh-theme'
+    mode: 'u=rw,go=r'
+    backup: yes
+  when: result.stat.exists and result.stat.isdir

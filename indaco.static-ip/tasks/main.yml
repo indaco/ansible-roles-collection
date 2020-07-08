@@ -1,0 +1,45 @@
+---
+# tasks file for roles/static_ip
+
+- name: Enable dhcpcd service
+  become: yes
+  systemd:
+    state: started
+    name: dhcpcd
+  tags:
+    - system_config, networking
+
+- name: Check the uptime prior Static IP configuration
+  command: uptime
+  register: UPTIME_PRE_REBOOT
+  changed_when: false
+- debug: msg={{ UPTIME_PRE_REBOOT.stdout }}
+
+- name: Assign a static IP address
+  become: yes
+  blockinfile:
+    path: /etc/dhcpcd.conf
+    block: |
+      interface {{ iface }}
+      static ip_address={{ ip_address }}/24
+      static routers={{ router_address }}
+      static domain_name_servers={{ dns_address }}
+    backup: yes
+  tags:
+    - system_config, networking
+
+- name: Reboot host and wait for it to restart
+  become: yes
+  reboot:
+    msg: "Reboot initiated by Ansible"
+    connect_timeout: 5
+    reboot_timeout: 600
+    pre_reboot_delay: 0
+    post_reboot_delay: 30
+    test_command: whoami
+
+- name: Check the uptime post Static IP configuration
+  command: uptime
+  register: UPTIME_POST_REBOOT
+  changed_when: false
+- debug: msg={{ UPTIME_POST_REBOOT.stdout }}

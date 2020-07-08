@@ -1,0 +1,6 @@
+---
+# handlers file for roles/indaco.fail2ban
+
+- name: restart fail2ban
+  become: yes
+  service: name=fail2ban state=restarted

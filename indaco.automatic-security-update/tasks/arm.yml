@@ -1,0 +1,16 @@
+---
+- name: Install required packages [ARM]
+  become: yes
+  apt:
+    name:
+      - unattended-upgrades
+      - apt-config-auto-update
+    state: present
+  tags: packages
+
+- name: Enable Email notification after each security update [ARM]
+  become: yes
+  lineinfile:
+    path: /etc/apt/apt.conf.d/50unattended-upgrades
+    regexp: '^//Unattended-Upgrade::Mail "";'
+    line: 'Unattended-Upgrade::Mail "{{ ansible_user }}";'

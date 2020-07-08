@@ -1,0 +1,6 @@
+---
+# defaults file for roles/indaco.mesite
+
+website_name: example.com
+certbot_admin_email: admin@example
+site_root_folder: /data

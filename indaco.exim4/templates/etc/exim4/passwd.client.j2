@@ -1,0 +1,15 @@
+# password file used when the local exim is authenticating to a remote
+# host as a client.
+#
+# see exim4_passwd_client(5) for more documentation
+#
+# Example:
+### target.mail.server.example:login:password
+
+{% if exim4_target_mail_servers is defined %}
+{% if exim4_email_login != '' and exim4_email_password != '' %}
+{% for server in exim4_target_mail_servers %}
+{{ server }}:{{exim4_email_login}}:{{exim4_email_password}}
+{% endfor %}
+{% endif %}
+{% endif %}

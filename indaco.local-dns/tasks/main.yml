@@ -1,0 +1,82 @@
+---
+# tasks file for roles/indaco.local-dns
+
+- name: Install required packages
+  become: yes
+  apt:
+    name:
+      - bind9
+      - bind9utils
+      - dnsutils
+    state: present
+    autoclean: yes
+  tags:
+    - packages, bind9
+
+- name: Enable Bind9 auto start at boot time
+  become: yes
+  service:
+    name: bind9
+    state: started
+    enabled: yes
+  tags:
+    - bind9
+
+- name: Setting Bind9 to IPv4
+  become: yes
+  lineinfile:
+    path: /etc/default/bind9
+    regexp: "^OPTIONS=\"-u bind\""
+    line: "OPTIONS=\"-u bind -4\""
+  tags:
+    - bind9
+
+- name: Restart Bind9 Service
+  become: yes
+  systemd:
+    name: bind9
+    state: reloaded
+  tags:
+    - bind9
+
+- name: Copy configuration file named.conf
+  become: yes
+  copy:
+    src: etc/bind/{{ item }}
+    dest: /etc/bind/{{ item }}
+    backup: yes
+  with_items:
+    - named.conf
+    - named.conf.options
+  tags:
+    - bind9
+
+- name: Allow LAN and RaspAP clients to send DNS queries
+  become: yes
+  ufw:
+    rule: allow
+    port: '53'
+    src: "{{ item }}"
+  with_items:
+    - 192.168.1.0/24
+    - 10.3.141.0/24
+  tags:
+    - bind9
+
+- name: Backup resolv.conf file
+  become: yes
+  copy:
+    src: /etc/resolv.conf
+    dest: /etc/resolv.conf.bk
+    remote_src: yes
+  tags:
+    - bind9
+
+- name: Enable DNS Resolver Service
+  become: yes
+  service:
+    name: bind9-resolvconf
+    state: started
+    enabled: yes
+  tags:
+    - bind9

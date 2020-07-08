@@ -1,0 +1,40 @@
+---
+# tasks file for roles/indaco.fail2ban
+
+- name: Ensure Fail2Ban is installed
+  become: yes
+  apt:
+    name: fail2ban
+    state: present
+
+- name: Check if Nginx is installed
+  stat:
+    path: /usr/sbin/nginx
+  register: check_nginx
+
+- name: Create a jail.local file
+  become: yes
+  copy:
+    src: etc/fail2ban/jail.local
+    dest: /etc/fail2ban/jail.local
+    #owner: root
+    #group: root
+    #mode: '0644'
+  when: check_nginx.stat.exists
+
+- name: Adding filters for additional Nginx jails
+  become: yes
+  copy:
+    src: etc/fail2ban/filter.d/{{ item }}
+    dest: /etc/fail2ban/filter.d/{{ item }}
+    #owner: root
+    #group: root
+    #mode: '0644'
+  with_items:
+    - nginx-http-auth.conf
+    - nginx-nohome.conf
+    - nginx-noproxy.conf
+    - nginx-noscript.conf
+  when: check_nginx.stat.exists
+  notify:
+    - restart fail2ban

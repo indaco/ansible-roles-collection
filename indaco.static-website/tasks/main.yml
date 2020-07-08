@@ -1,0 +1,6 @@
+---
+# tasks file for roles/indaco.mesite
+
+- include_tasks: website.yml
+
+- include_tasks: letsencrypt.yml
