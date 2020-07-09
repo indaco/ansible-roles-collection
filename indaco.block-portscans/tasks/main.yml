@@ -84,7 +84,7 @@
   blockinfile:
     path: /etc/fail2ban/jail.local
     state: present
-    insertafter: EF
+    insertafter: EOF
     block: |
       [portscan]
 
