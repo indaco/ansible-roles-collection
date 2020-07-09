@@ -1,8 +1,8 @@
 ## Ansible Roles Collection
 
-A collection of Ansible's roles self-developed. Some are specifics to the RaspberryPi
+This is a collection of Ansible's roles I developed to automate the setup of my own nodes
 
-### Roles:
+### Ubuntu and Raspian roles
 
 - indaco.base
 - indaco.automatic-security-update
@@ -19,7 +19,10 @@ A collection of Ansible's roles self-developed. Some are specifics to the Raspbe
 - indaco.oh-my-zsh
 - indaco.openssh
 - indaco.python38openssl
-- indaco.raspi_config
-- indaco.static-ip
 - indaco.static-website
 - indaco.webmin
+
+### Raspian specific roles
+
+- indaco.raspi_config
+- indaco.static-ip
