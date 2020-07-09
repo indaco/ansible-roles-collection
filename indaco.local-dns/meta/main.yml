@@ -1,6 +1,6 @@
 galaxy_info:
   author: indaco
-  description: Install and configure Bin9 to make target host a local DNS resolver
+  description: Install and configure Bind9 to make target host a local DNS resolver
 
   license: CC-BY-4.0
 
