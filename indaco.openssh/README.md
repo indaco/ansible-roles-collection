@@ -1,8 +1,7 @@
 indaco.openssh
 =========
 
-pm2_version
-
+Install and configure OpenSSH server.
 
 Role Variables
 --------------

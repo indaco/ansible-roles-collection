@@ -1,6 +1,6 @@
 galaxy_info:
   author: indaco
-  description: pm2_version
+  description: Install and configure OpenSSH server
 
   license: CC-BY-4.0
 

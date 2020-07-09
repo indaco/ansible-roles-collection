@@ -3,7 +3,6 @@ indaco.logrotate
 
 Install and configure Logrotate
 
-
 Role Variables
 --------------
 

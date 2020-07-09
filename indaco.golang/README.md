@@ -3,8 +3,6 @@ indaco.golang
 
 Install Go Lang, add bins to PATH based on the default shell
 
-
-
 Role Variables
 --------------
 
