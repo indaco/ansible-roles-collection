@@ -1,0 +1,48 @@
+---
+# tasks file for indaco.lynis
+
+- name: Download the key from a central server
+  become: yes
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: C80E383C3DE9F082E01391A0366C67DE91CA5D5F
+
+- name: Install the https method for APT
+  become: yes
+  apt:
+    name: apt-transport-https
+    state: present
+
+- name: Configure APT to skip downloading translations if use software in english
+  become: yes
+  copy:
+    content: 'Acquire::Languages "none";'
+    dest: /etc/apt/apt.conf.d/99disable-translations
+    force: no
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Adding the repository
+  become: yes
+  apt_repository:
+    repo: deb https://packages.cisofy.com/community/lynis/deb/ stable main
+    state: present
+
+- name: Refresh the local package database
+  become: yes
+  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600 state=present
+
+- name: Install lynis
+  become: yes
+  apt:
+    name: lynis
+    state: present
+
+- name: Get Lynis version
+  become: yes
+  command: lynis show version
+  register: lynis_version
+
+- debug:
+    msg: "Lynis version is: {{ lynis_version.stdout }}"

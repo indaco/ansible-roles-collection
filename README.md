@@ -11,6 +11,7 @@ This is a collection of Ansible's roles I developed to automate the setup of my 
 - indaco.fail2ban
 - indaco.firewall
 - indaco.golang
+- indaco.lynis
 - indaco.local-dns
 - indaco.logrotate
 - indaco.logwatch
