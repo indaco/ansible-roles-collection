@@ -1,6 +1,12 @@
 ---
 # tasks file for indaco.lynis
 
+- name: Install debsums package
+  become: yes
+  apt:
+    name: debsums
+    state: present
+
 - name: Download the key from a central server
   become: yes
   apt_key:
