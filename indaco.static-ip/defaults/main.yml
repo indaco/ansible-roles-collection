@@ -4,4 +4,4 @@
 iface: eth0
 ip_address: "{{ ansible_host }}"
 router_address: 192.168.1.1
-dns_address: 1.1.1.1
+dns_address: 1.1.1.1 198.54.117.10
