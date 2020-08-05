@@ -17,10 +17,12 @@
     backup: yes
   tags:
     - openssh
+  notify:
+    - Restart ssh
 
-- name: Reboot host and wait for it to restart
-  become: yes
-  reboot:
-    msg: "Reboot initiated by Ansible"
-  tags:
-    - openssh
+#- name: Reboot host and wait for it to restart
+#  become: yes
+#  reboot:
+#    msg: "Reboot initiated by Ansible"
+#  tags:
+#    - openssh

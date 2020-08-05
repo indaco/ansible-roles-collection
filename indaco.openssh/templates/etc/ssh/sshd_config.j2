@@ -92,11 +92,11 @@ X11Forwarding {{ sshd_x11_forwarding }}
 #PermitTTY yes
 PrintMotd {{ sshd_print_motd }}
 PrintLastLog {{ sshd_print_lastlog }}
-#TCPKeepAlive yes
+TCPKeepAlive {{ sshd_tcp_keep_alive }}
 #PermitUserEnvironment no
-#Compression delayed
+Compression {{ sshd_compression }}
 #ClientAliveInterval 0
-#ClientAliveCountMax 3
+ClientAliveCountMax {{ sshd_client_alive_count_max }}
 UseDNS {{ sshd_use_dns }}
 #PidFile /var/run/sshd.pid
 #MaxStartups 10:30:100
