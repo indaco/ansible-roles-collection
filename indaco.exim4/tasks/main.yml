@@ -36,7 +36,6 @@
   become: yes
   file:
     path: /var/log/exim4
-    stat: directory
     owner: Debian-exim
     group: Debian-exim
     mode: u+rw
