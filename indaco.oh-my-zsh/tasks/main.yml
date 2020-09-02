@@ -10,7 +10,6 @@
   git:
     repo: 'https://github.com/zsh-users/{{ item }}.git'
     dest: '~{{ ansible_user }}/.oh-my-zsh/custom/plugins/{{ item }}'
-    version: latest
   with_items: "{{ plugins }}"
   when: result.stat.exists and result.stat.isdir
 
@@ -21,3 +20,12 @@
     mode: 'u=rw,go=r'
     backup: yes
   when: result.stat.exists and result.stat.isdir
+
+- name: Set Locales and character encoding
+  blockinfile:
+    path: '~{{ ansible_user }}/.zshrc'
+    insertafter: EOF
+    block: |
+      export LANGUAGE=en_US.UTF-8
+      export LANG=en_US.UTF-8
+      export LC_ALL=en_US.UTF-8
