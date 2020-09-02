@@ -29,26 +29,11 @@
   tags:
     - packages, webmin
 
-- name: Download Webmin package
-  get_url:
-    url: 'https://prdownloads.sourceforge.net/webadmin/{{ webmin_deb_file }}'
-    dest: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
-  when: webmin_package_check_deb.rc == 1
-  tags:
-    - packages, webmin
+- include_tasks: raspberrypi.yml
+  when: '"arm" in ansible_architecture'
 
-- name: Install webmin
-  become: yes
-  apt:
-    deb: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
-  when: webmin_package_check_deb.rc == 1
-  tags:
-    - packages, webmin
-
-- name: Clean up home folder
-  file:
-    path: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
-    state: absent
+- include_tasks: debian.yml
+  when:  '"x86_64" in ansible_architecture'
 
 - name: Allow Webmin default port on UFW
   become: yes
