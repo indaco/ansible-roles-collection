@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include indaco.block-portscans"
+      include_role:
+        name: "indaco.block-portscans"
