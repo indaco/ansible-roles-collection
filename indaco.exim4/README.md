@@ -1,4 +1,4 @@
-Role Name
+indaco.exim4
 =========
 
 Install and configure Exim4 to be used as MTA with Gmail
