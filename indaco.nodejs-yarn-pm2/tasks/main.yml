@@ -40,10 +40,10 @@
     state: present
 
 ## Yarn
-- name: Add Yarn apt key
-  become: yes
-  apt_key:
-    url: https://dl.yarnpkg.com/debian/pubkey.gpg
+#- name: Add Yarn apt key
+#  become: yes
+#  apt_key:
+#    url: https://dl.yarnpkg.com/debian/pubkey.gpg
 
 - name: Add Yarn repository
   become: yes
