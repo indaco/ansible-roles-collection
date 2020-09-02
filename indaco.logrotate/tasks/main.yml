@@ -8,7 +8,7 @@
     state: present
   when: logrotate_script is defined
 
-- name: Setup logrotate logrotate scripts
+- name: Setup logrotate scripts
   become: yes
   template:
     src: etc/logrotate.d/script.d.j2
