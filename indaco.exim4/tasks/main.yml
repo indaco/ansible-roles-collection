@@ -10,7 +10,7 @@
     state: present
   tags: packages, exim4
 
-- name: Install Exim4
+- name: Ensure Exim4 is installed
   become: yes
   apt:
     name: exim4
@@ -26,14 +26,21 @@
     - update exim4.conf
   tags: packages, exim4
 
-- name: Setup logrotate
+- name: Change file ownership, group and permissions
   become: yes
-  template:
-    src: etc/logrotate.d/logrotate.j2
-    dest: "/etc/logrotate.d/{{ item.name }}"
-  with_items:
-    - "{{ exim4_logrotate_base }}"
-    - "{{ exim4_logrotate_paniclog }}"
+  file:
+    path: /etc/exim4/update-exim4.conf.conf
+    mode: "0644"
+
+- name: Ensure Exim4 log directory is owned and writable by Debian-exim user
+  become: yes
+  file:
+    path: /var/log/exim4
+    stat: directory
+    owner: Debian-exim
+    group: Debian-exim
+    mode: u+rw
+    recurse: yes
   tags: packages, exim4
 
 - name: Setup mail account details
@@ -62,3 +69,28 @@
   become: yes
   command: 'chfn -f {{ ansible_user }}@{{ inventory_hostname }}'
   changed_when: false
+
+- name: Ensure exim is running.
+  service: "name={{ exim_daemon }} state=started enabled=yes"
+
+#- name: Setup logrotate
+#  become: yes
+#  template:
+#    src: etc/logrotate.d/logrotate.j2
+#    dest: "/etc/logrotate.d/{{ item.name }}"
+#  with_items:
+#    - "{{ exim4_logrotate_base }}"
+#    - "{{ exim4_logrotate_paniclog }}"
+#  tags: packages, exim4
+
+#- name: Change file ownership, group and permissions
+#  become: yes
+#  file:
+#    path: "/etc/logrotate.d/{{ item.name }}"
+#    owner: Debian-exim
+#    group: Debian-exim
+#    mode: "0644"
+#  with_items:
+#    - "{{ exim4_logrotate_base }}"
+#    - "{{ exim4_logrotate_paniclog }}"
+#  tags: packages, exim4

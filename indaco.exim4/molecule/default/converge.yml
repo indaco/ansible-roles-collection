@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include indaco.exim4"
+      include_role:
+        name: "indaco.exim4"

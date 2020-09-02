@@ -1,6 +1,10 @@
 ---
 # vars file for roles/exim
 
+exim_package: exim4
+exim_daemon: exim4
+exim_configuration_file: /etc/exim4/update-exim4.conf.conf
+
 exim4_logrotate_base:
   - name: exim4-base
     path: /var/log/exim4/mainlog /var/log/exim4/rejectlog
