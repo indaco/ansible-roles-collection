@@ -1,0 +1,21 @@
+---
+# tasks file for indaco.dropbox
+
+- name: Ensure required software are installed
+  become: yes
+  apt:
+    name:
+      - curl
+      - git
+    state: present
+
+- name: Clone Dropbox uploader script
+  git:
+    repo: 'https://github.com/andreafabrizi/Dropbox-Uploader.git'
+    dest: /home/{{ ansible_user }}
+
+- name: Give execution priviles to the Dropbox script
+  become: yes
+  file:
+    path: /home/{{ ansible_user }}/Dropbox-Uploader/dropbox_uploader.sh
+    mode: +x
