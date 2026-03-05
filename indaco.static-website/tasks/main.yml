@@ -1,6 +1,6 @@
 ---
-# tasks file for roles/indaco.mesite
+# tasks file for roles/indaco.static-website
 
-- include_tasks: website.yml
+- ansible.builtin.include_tasks: website.yml
 
-- include_tasks: letsencrypt.yml
+- ansible.builtin.include_tasks: letsencrypt.yml

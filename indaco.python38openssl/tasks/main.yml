@@ -1,36 +1,39 @@
 ---
-# tasks file for roles/python38openssl
+# tasks file for roles/python-openssl
 
 - name: Get dependencies
-  include_tasks: dependencies.yml
+  ansible.builtin.include_tasks: dependencies.yml
 
 - name: OpenSSL Installation
-  include_tasks: openssl.yml
+  ansible.builtin.include_tasks: openssl.yml
 
-- name: Python 3.8 Installation
-  include_tasks: python38.yml
+- name: Python {{ python_version }} Installation
+  ansible.builtin.include_tasks: python38.yml
 
 - name: Check Python v.{{ python_version }}
-  shell: "{{ python_bin }} --version"
+  ansible.builtin.command: "{{ python_bin }} --version"
   register: check_python
+  changed_when: false
 
-- debug:
+- name: Show Python version
+  ansible.builtin.debug:
     var: check_python.stdout
 
 - name: Get the shell for {{ ansible_user }}
-  shell: echo "$SHELL"
+  ansible.builtin.command: getent passwd {{ ansible_user }}
   register: shell_output
+  changed_when: false
 
-- name: Make Python 3.8 as the default python interpreter for {{ ansible_user }} as Bash alias
-  lineinfile:
+- name: Make Python {{ python_version }} the default python interpreter for {{ ansible_user }} as Bash alias
+  ansible.builtin.lineinfile:
     path: "~{{ ansible_user }}/.bashrc"
     insertafter: EOF
     line: 'alias python="{{ python_bin }}"'
-  when: '"bash" in shell_output.stdout'
+  when: '"/bash" in shell_output.stdout'
 
-- name: Make Python 3.8 as the default python interpreter for {{ ansible_user }} as ZSH alias
-  lineinfile:
+- name: Make Python {{ python_version }} the default python interpreter for {{ ansible_user }} as ZSH alias
+  ansible.builtin.lineinfile:
     path: "~{{ ansible_user }}/.zshrc"
     insertafter: EOF
     line: 'alias python="{{ python_bin }}"'
-  when: '"zsh" in shell_output.stdout'
+  when: '"/zsh" in shell_output.stdout'
