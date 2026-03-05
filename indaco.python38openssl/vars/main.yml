@@ -1,12 +1,12 @@
 ---
-# vars file for roles/python38openssl
+# vars file for roles/python-openssl
 
-list_of_prerequisistes:
+list_of_prerequisites:
   - build-essential
   - tk-dev
-  - libncurses5-dev
+  - libncurses-dev
   - libncursesw5-dev
-  - libreadline6-dev
+  - libreadline-dev
   - libdb5.3-dev
   - libgdbm-dev
   - libsqlite3-dev
@@ -19,9 +19,9 @@ list_of_prerequisistes:
 
 openssl_dir: 'openssl-{{ openssl_version }}'
 openssl_filename: '{{ openssl_dir }}.tar.gz'
-openssl_download_url: 'https://www.openssl.org/source/{{ openssl_filename }}'
+openssl_download_url: 'https://github.com/openssl/openssl/releases/download/openssl-{{ openssl_version }}/{{ openssl_filename }}'
 
 python_dir: 'Python-{{ python_version }}'
 python_filename: '{{ python_dir }}.tgz'
-python_dowload_url: 'https://www.python.org/ftp/python/{{ python_version }}/{{ python_filename }}'
-python_bin: '/usr/local/bin/python3.8'
+python_download_url: 'https://www.python.org/ftp/python/{{ python_version }}/{{ python_filename }}'
+python_bin: '/usr/local/bin/python3.13'

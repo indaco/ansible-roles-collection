@@ -1,5 +1,5 @@
 ---
 # defaults file for roles/webmin
 
-webmin_deb_file: "webmin_1.953_all.deb"
+webmin_deb_file: "webmin_2.111_all.deb"
 webmin_port: "10000"
