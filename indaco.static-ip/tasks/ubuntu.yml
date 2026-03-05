@@ -1,10 +1,11 @@
 ---
 
 - name: Add an Ethernet connection with static IP configuration
-  nmcli:
-    conn_name: my-eth1
-    ifname: eth0
+  community.general.nmcli:
+    conn_name: "{{ iface }}"
+    ifname: "{{ iface }}"
     type: ethernet
-    ip4: 192.168.2.100/24
-    gw4: 192.0.2.1
+    ip4: "{{ ip_address }}/24"
+    gw4: "{{ router_address }}"
+    dns4: "{{ dns_address.split() }}"
     state: present

@@ -3,13 +3,15 @@
 
 - name: Update apt-get repo and cache
   become: yes
-  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600 state=present
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
   tags:
     - packages
 
 - name: Ensure Fail2Ban and UFW are installed
   become: yes
-  apt:
+  ansible.builtin.apt:
     name:
       - fail2ban
       - ufw
@@ -17,75 +19,70 @@
 
 - name: Disable IPv6 on UFW
   become: yes
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/ufw
-    regex: "^IPV6=yes"
+    regexp: "^IPV6=yes"
     line: "IPV6=no"
 
 - name: Allow OpenSSH on UFW
   become: yes
-  ufw:
+  community.general.ufw:
     rule: allow
     name: OpenSSH
     state: enabled
 
-- name: allow SSH port 22 on UFW
+- name: Allow SSH port 22 on UFW
   become: yes
-  ufw:
+  community.general.ufw:
     rule: allow
     port: '22'
     state: enabled
 
 - name: UFW deny Incoming
   become: yes
-  ufw:
+  community.general.ufw:
     policy: deny
     direction: incoming
     state: enabled
 
-- name: UFW - allow outgoing
+- name: UFW allow outgoing
   become: yes
-  ufw:
+  community.general.ufw:
     policy: allow
     direction: outgoing
     state: enabled
 
-- name: UFW - Set logging to Low
+- name: UFW set logging to Low
   become: yes
-  ufw:
+  community.general.ufw:
     logging: low
     state: enabled
 
-- name: Disable UFW
-  become: yes
-  ufw:
-    state: disabled
-
 - name: Enable UFW
   become: yes
-  ufw:
+  community.general.ufw:
     state: enabled
 
 - name: Setup an action rule for UFW
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: etc/fail2ban/action.d/ufw.conf
     dest: /etc/fail2ban/action.d/ufw.conf
 
 - name: Setup a filter for log file to know when to ban a user
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: etc/fail2ban/filter.d/portscan.conf
     dest: /etc/fail2ban/filter.d/portscan.conf
 
 - name: Check if jail.local exists
-  stat:
-    path: /etc/fails2ban/jail.local
+  ansible.builtin.stat:
+    path: /etc/fail2ban/jail.local
   register: jail_local_stat_result
 
 - name: Copy jail.conf to jail.local
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: /etc/fail2ban/jail.conf
     dest: /etc/fail2ban/jail.local
     remote_src: yes
@@ -93,14 +90,14 @@
 
 - name: Define whitelist
   become: yes
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/fail2ban/jail.local
     regexp: "^#ignoreip = 127.0.0.1/8 ::1"
     line: "ignoreip = 192.168.1.0/24"
 
 - name: Add a portscan rule to jail.local file
   become: yes
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: /etc/fail2ban/jail.local
     state: present
     insertafter: EOF
@@ -115,4 +112,6 @@
 
 - name: Restart Fail2Ban
   become: yes
-  service: name=fail2ban state=restarted
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted

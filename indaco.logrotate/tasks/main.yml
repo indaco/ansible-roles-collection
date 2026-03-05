@@ -6,7 +6,7 @@
   apt:
     name: logrotate
     state: present
-  when: logrotate_script is defined
+  when: logrotate_scripts is defined
 
 - name: Setup logrotate scripts
   become: yes
@@ -14,4 +14,4 @@
     src: etc/logrotate.d/script.d.j2
     dest: /etc/logrotate.d/{{ item.name }}
   loop: "{{ logrotate_scripts }}"
-  when: logrotate_script is defined
+  when: logrotate_scripts is defined

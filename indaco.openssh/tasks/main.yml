@@ -1,16 +1,16 @@
 ---
 
 - name: Set authorized key taken from file
-  authorized_key:
+  ansible.posix.authorized_key:
     user: "{{ ansible_user }}"
     state: present
-    key: "{{ lookup('file', \"{{ pub_key_file }}\") }}"
+    key: "{{ lookup('file', pub_key_file) }}"
   tags:
     - openssh
 
 - name: config | Configuring SSHD
   become: yes
-  template:
+  ansible.builtin.template:
     src: "etc/ssh/sshd_config.j2"
     dest: "/etc/ssh/sshd_config"
     validate: /usr/sbin/sshd -t -f %s
@@ -19,10 +19,3 @@
     - openssh
   notify:
     - Restart ssh
-
-#- name: Reboot host and wait for it to restart
-#  become: yes
-#  reboot:
-#    msg: "Reboot initiated by Ansible"
-#  tags:
-#    - openssh

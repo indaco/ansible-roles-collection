@@ -1,34 +1,46 @@
 ---
 
-- name: Update apt cache if repo was added
+- name: Update apt cache
   become: yes
-  apt: update_cache=yes
+  ansible.builtin.apt:
+    update_cache: yes
 
 - name: Install Certbot
   become: yes
-  apt:
-    name: python-certbot-nginx
+  ansible.builtin.apt:
+    name: python3-certbot-nginx
     state: present
 
-- name: Check if certificate already exists.
-  stat:
+- name: Check if certificate already exists
+  ansible.builtin.stat:
     path: /etc/letsencrypt/live/{{ website_name }}/cert.pem
   register: letsencrypt_cert
 
-- name: Stop services to allow certbot to generate a cert.
-  service:
+- name: Stop services to allow certbot to generate a cert
+  become: yes
+  ansible.builtin.systemd:
     name: nginx
     state: stopped
 
 - name: Generate and install an SSL certificate redirecting all the traffic to https
   become: yes
-  shell: |
+  ansible.builtin.shell: |
     certbot --nginx --noninteractive
     --agree-tos --email {{ certbot_admin_email }} --redirect
     -d {{ website_name }} -d www.{{ website_name }}
-  when: letsencrypt_cert.exists == False
+  when: not letsencrypt_cert.stat.exists
 
-- name: Start services after cert has been generated.
-  service:
+- name: Start services after cert has been generated
+  become: yes
+  ansible.builtin.systemd:
     name: nginx
     state: started
+
+- name: Set up certbot auto-renewal cron job
+  become: yes
+  ansible.builtin.cron:
+    name: "certbot renewal"
+    minute: "0"
+    hour: "3"
+    job: "certbot renew --quiet"
+    user: root
