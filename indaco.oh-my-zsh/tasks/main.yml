@@ -2,27 +2,29 @@
 # tasks file for roles/ohmyzsh
 
 - name: Check folder exists
-  stat:
+  ansible.builtin.stat:
     path: '~{{ ansible_user }}/.oh-my-zsh'
   register: result
 
 - name: Getting ZSH plugins installed
-  git:
+  become_user: "{{ ansible_user }}"
+  ansible.builtin.git:
     repo: 'https://github.com/zsh-users/{{ item }}.git'
     dest: '~{{ ansible_user }}/.oh-my-zsh/custom/plugins/{{ item }}'
-  with_items: "{{ plugins }}"
+  loop: "{{ plugins }}"
   when: result.stat.exists and result.stat.isdir
 
 - name: Customize default theme
-  copy:
+  ansible.builtin.copy:
     src: files/robbyrussell.zsh-theme
     dest: '~{{ ansible_user }}/.oh-my-zsh/themes/robbyrussell.zsh-theme'
     mode: 'u=rw,go=r'
+    owner: "{{ ansible_user }}"
     backup: yes
   when: result.stat.exists and result.stat.isdir
 
 - name: Set Locales and character encoding
-  blockinfile:
+  ansible.builtin.blockinfile:
     path: '~{{ ansible_user }}/.zshrc'
     insertafter: EOF
     block: |
