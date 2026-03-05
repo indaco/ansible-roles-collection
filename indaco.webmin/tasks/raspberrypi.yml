@@ -1,21 +1,23 @@
 ---
 - name: Download Webmin package
-  get_url:
+  ansible.builtin.get_url:
     url: 'https://prdownloads.sourceforge.net/webadmin/{{ webmin_deb_file }}'
-    dest: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
+    dest: '/tmp/{{ webmin_deb_file }}'
   when: webmin_package_check_deb.rc == 1
   tags:
-    - packages, webmin
+    - packages
+    - webmin
 
 - name: Install webmin
   become: yes
-  apt:
-    deb: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
+  ansible.builtin.apt:
+    deb: '/tmp/{{ webmin_deb_file }}'
   when: webmin_package_check_deb.rc == 1
   tags:
-    - packages, webmin
+    - packages
+    - webmin
 
-- name: Clean up home folder
-  file:
-    path: '/home/{{ ansible_user }}/{{ webmin_deb_file }}'
+- name: Clean up downloaded package
+  ansible.builtin.file:
+    path: '/tmp/{{ webmin_deb_file }}'
     state: absent

@@ -1,24 +1,36 @@
 ---
 # tasks file for roles/indaco.docker
 
-- name: Install python3 and pip
+- name: Install prerequisites
   become: yes
   ansible.builtin.apt:
     name:
       - python3
       - python3-pip
+      - ca-certificates
+      - curl
+      - gnupg
     state: present
-    update_cache: no
+    update_cache: yes
 
-- name: Pause 20 seconds to let the system network be ready (PLEASE WAIT, DO NOT ABORT!)
-  ansible.builtin.pause:
-    seconds: 20
-
-- name: Add Docker GPG apt Key
+- name: Create keyrings directory
   become: yes
-  ansible.builtin.apt_key:
-    url: '{{ docker_apt_gpg_key }}'
-    state: present
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Download Docker GPG key
+  become: yes
+  ansible.builtin.shell: curl -fsSL {{ docker_apt_gpg_key }} | gpg --dearmor -o /etc/apt/keyrings/docker.gpg --yes
+  args:
+    creates: /etc/apt/keyrings/docker.gpg
+
+- name: Set permissions on Docker GPG key
+  become: yes
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/docker.gpg
+    mode: '0644'
 
 - name: Add Docker Repository
   become: yes
@@ -27,20 +39,21 @@
     state: present
     update_cache: true
 
-- name: Update apt and install Docker
+- name: Install Docker
   become: yes
   ansible.builtin.apt:
     name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
     state: present
-    update_cache: false
 
-- name: Add ansible_user user to "docker" group
+- name: Add ansible_user to "docker" group
   become: yes
   ansible.builtin.user:
-    name: '{{ ansible_user}}'
+    name: '{{ ansible_user }}'
     groups: 'docker'
     append: yes
   tags:
@@ -53,22 +66,15 @@
     state: started
     enabled: yes
 
-- name: Run and enable containerd.io
+- name: Run and enable containerd
   become: yes
   ansible.builtin.systemd:
     name: containerd
     state: started
     enabled: yes
 
-- name: Install or upgrade docker-compose
+- name: Install docker Python library
   become: yes
-  ansible.builtin.get_url:
-    url: 'https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-Linux-x86_64'
-    dest: /usr/local/bin/docker-compose
-    mode: 'a+x'
-    force: yes
-
-- name: Install docker-py lib
   ansible.builtin.pip:
-    name: docker-py
+    name: docker
     state: present
