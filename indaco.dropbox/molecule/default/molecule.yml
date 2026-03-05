@@ -11,7 +11,7 @@ lint: |
   ansible-lint
 platforms:
   - name: new-project-server
-    box: ubuntu/bionic64
+    box: ubuntu/noble64
     instance_raw_config_args:
       - "vm.network 'forwarded_port', guest: 80, host: 8088"
 provisioner:
