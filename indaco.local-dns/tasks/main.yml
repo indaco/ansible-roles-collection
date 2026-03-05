@@ -3,7 +3,7 @@
 
 - name: Install required packages
   become: yes
-  apt:
+  ansible.builtin.apt:
     name:
       - bind9
       - bind9utils
@@ -11,11 +11,12 @@
     state: present
     autoclean: yes
   tags:
-    - packages, bind9
+    - packages
+    - bind9
 
 - name: Enable Bind9 auto start at boot time
   become: yes
-  service:
+  ansible.builtin.systemd:
     name: bind9
     state: started
     enabled: yes
@@ -24,7 +25,7 @@
 
 - name: Setting Bind9 to IPv4
   become: yes
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/default/bind9
     regexp: "^OPTIONS=\"-u bind\""
     line: "OPTIONS=\"-u bind -4\""
@@ -33,7 +34,7 @@
 
 - name: Restart Bind9 Service
   become: yes
-  systemd:
+  ansible.builtin.systemd:
     name: bind9
     state: reloaded
   tags:
@@ -41,11 +42,11 @@
 
 - name: Copy configuration file named.conf
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: etc/bind/{{ item }}
     dest: /etc/bind/{{ item }}
     backup: yes
-  with_items:
+  loop:
     - named.conf
     - named.conf.options
   tags:
@@ -53,11 +54,11 @@
 
 - name: Allow LAN and RaspAP clients to send DNS queries
   become: yes
-  ufw:
+  community.general.ufw:
     rule: allow
     port: '53'
     src: "{{ item }}"
-  with_items:
+  loop:
     - 192.168.1.0/24
     - 10.3.141.0/24
   tags:
@@ -65,7 +66,7 @@
 
 - name: Backup resolv.conf file
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: /etc/resolv.conf
     dest: /etc/resolv.conf.bk
     remote_src: yes
@@ -74,7 +75,7 @@
 
 - name: Enable DNS Resolver Service
   become: yes
-  service:
+  ansible.builtin.systemd:
     name: bind9-resolvconf
     state: started
     enabled: yes

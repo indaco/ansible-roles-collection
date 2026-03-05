@@ -3,93 +3,90 @@
 
 - name: Install prerequisites for Exim4 configurations
   become: yes
-  apt:
+  ansible.builtin.apt:
     name:
       - debconf
       - debconf-utils
     state: present
-  tags: packages, exim4
+  tags:
+    - packages
+    - exim4
 
 - name: Ensure Exim4 is installed
   become: yes
-  apt:
+  ansible.builtin.apt:
     name: exim4
     state: present
-  tags: packages, exim4
+  tags:
+    - packages
+    - exim4
 
 - name: Configure update-exim4.conf.conf
   become: yes
-  template:
+  ansible.builtin.template:
     src: etc/exim4/update-exim4.conf.j2
     dest: /etc/exim4/update-exim4.conf.conf
   notify:
     - update exim4.conf
-  tags: packages, exim4
+  tags:
+    - packages
+    - exim4
 
 - name: Change file ownership, group and permissions
   become: yes
-  file:
+  ansible.builtin.file:
     path: /etc/exim4/update-exim4.conf.conf
     mode: "0644"
 
 - name: Ensure Exim4 log directory is owned and writable by Debian-exim user
   become: yes
-  file:
+  ansible.builtin.file:
     path: /var/log/exim4
     owner: Debian-exim
     group: Debian-exim
     mode: u+rw
     recurse: yes
-  tags: packages, exim4
+  tags:
+    - packages
+    - exim4
 
 - name: Setup mail account details
   become: yes
-  template:
+  ansible.builtin.template:
     src: etc/exim4/passwd.client.j2
     dest: /etc/exim4/passwd.client
+    mode: "0600"
+    owner: root
+    group: Debian-exim
   notify:
     - update exim4.conf
-  tags: packages, exim4
+  tags:
+    - packages
+    - exim4
 
 - name: Add aliases to /etc/aliases
   become: yes
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/aliases
     insertafter: EOF
     line: "{{ item }}"
-  with_items:
+  loop:
     - "root: {{ ansible_user }}"
     - "{{ ansible_user }}: {{ local_user_email }}"
   notify:
     - newaliases
-  tags: packages, exim4
+  tags:
+    - packages
+    - exim4
 
 - name: Set a full name for user
   become: yes
-  command: 'chfn -f {{ ansible_user }}@{{ inventory_hostname }}'
+  ansible.builtin.command: 'chfn -f {{ ansible_user }}@{{ inventory_hostname }}'
   changed_when: false
 
-- name: Ensure exim is running.
-  service: "name={{ exim_daemon }} state=started enabled=yes"
-
-#- name: Setup logrotate
-#  become: yes
-#  template:
-#    src: etc/logrotate.d/logrotate.j2
-#    dest: "/etc/logrotate.d/{{ item.name }}"
-#  with_items:
-#    - "{{ exim4_logrotate_base }}"
-#    - "{{ exim4_logrotate_paniclog }}"
-#  tags: packages, exim4
-
-#- name: Change file ownership, group and permissions
-#  become: yes
-#  file:
-#    path: "/etc/logrotate.d/{{ item.name }}"
-#    owner: Debian-exim
-#    group: Debian-exim
-#    mode: "0644"
-#  with_items:
-#    - "{{ exim4_logrotate_base }}"
-#    - "{{ exim4_logrotate_paniclog }}"
-#  tags: packages, exim4
+- name: Ensure exim is running
+  become: yes
+  ansible.builtin.systemd:
+    name: "{{ exim_daemon }}"
+    state: started
+    enabled: yes

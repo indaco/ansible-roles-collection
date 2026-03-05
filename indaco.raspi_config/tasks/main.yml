@@ -1,6 +1,6 @@
 ---
-# tasks file for exercise-4-raspiconfig/roles/raspi_config
+# tasks file for roles/raspi_config
 
-- import_tasks: config.yml
+- ansible.builtin.import_tasks: config.yml
 
-- import_tasks: locale.yml
+- ansible.builtin.import_tasks: locale.yml

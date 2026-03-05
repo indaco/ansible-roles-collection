@@ -3,34 +3,36 @@
 
 - name: Update apt-get repo and cache
   become: yes
-  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600 state=present
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
   tags:
     - packages
 
 - name: Ensure Fail2Ban is installed
   become: yes
-  apt:
+  ansible.builtin.apt:
     name: fail2ban
     state: present
 
 - name: Check if Nginx is installed
-  stat:
+  ansible.builtin.stat:
     path: /usr/sbin/nginx
   register: check_nginx
 
 - name: Create a jail.local file
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: etc/fail2ban/jail.local
     dest: /etc/fail2ban/jail.local
   when: check_nginx.stat.exists
 
 - name: Adding filters for additional Nginx jails
   become: yes
-  copy:
+  ansible.builtin.copy:
     src: etc/fail2ban/filter.d/{{ item }}
     dest: /etc/fail2ban/filter.d/{{ item }}
-  with_items:
+  loop:
     - nginx-http-auth.conf
     - nginx-nohome.conf
     - nginx-noproxy.conf

@@ -1,0 +1,39 @@
+---
+# tasks file for roles/python-openssl
+
+- name: Get dependencies
+  ansible.builtin.include_tasks: dependencies.yml
+
+- name: OpenSSL Installation
+  ansible.builtin.include_tasks: openssl.yml
+
+- name: Python {{ python_version }} Installation
+  ansible.builtin.include_tasks: python38.yml
+
+- name: Check Python v.{{ python_version }}
+  ansible.builtin.command: "{{ python_bin }} --version"
+  register: check_python
+  changed_when: false
+
+- name: Show Python version
+  ansible.builtin.debug:
+    var: check_python.stdout
+
+- name: Get the shell for {{ ansible_user }}
+  ansible.builtin.command: getent passwd {{ ansible_user }}
+  register: shell_output
+  changed_when: false
+
+- name: Make Python {{ python_version }} the default python interpreter for {{ ansible_user }} as Bash alias
+  ansible.builtin.lineinfile:
+    path: "~{{ ansible_user }}/.bashrc"
+    insertafter: EOF
+    line: 'alias python="{{ python_bin }}"'
+  when: '"/bash" in shell_output.stdout'
+
+- name: Make Python {{ python_version }} the default python interpreter for {{ ansible_user }} as ZSH alias
+  ansible.builtin.lineinfile:
+    path: "~{{ ansible_user }}/.zshrc"
+    insertafter: EOF
+    line: 'alias python="{{ python_bin }}"'
+  when: '"/zsh" in shell_output.stdout'

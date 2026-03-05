@@ -19,7 +19,7 @@ This is a collection of Ansible's roles I developed to automate the setup of my 
 - indaco.nodejs-yarn-pm2
 - indaco.oh-my-zsh
 - indaco.openssh
-- indaco.python38openssl
+- indaco.python-openssl
 - indaco.static-website
 - indaco.webmin
 

@@ -1,21 +1,25 @@
 ---
-# tasks file for exercise-5-base/roles/base
+# tasks file for roles/base
 
 - name: Update apt-get repo and cache
   become: yes
-  apt: update_cache=yes force_apt_get=yes cache_valid_time=3600 state=present
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 3600
   tags:
     - packages
 
-- name: Upgrade apt
+- name: Upgrade apt packages
   become: yes
-  apt: upgrade=yes
+  ansible.builtin.apt:
+    upgrade: yes
   tags:
     - packages
 
-- name: Upgrade all apt packages
+- name: Upgrade all apt packages (dist)
   become: yes
-  apt: upgrade=dist force_apt_get=yes
+  ansible.builtin.apt:
+    upgrade: dist
   notify:
     - Reboot host and wait for it to restart
   tags:

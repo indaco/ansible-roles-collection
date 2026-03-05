@@ -3,7 +3,7 @@
 
 - name: Install UFW
   become: yes
-  apt:
+  ansible.builtin.apt:
     name:
       - ufw
     state: present
@@ -13,29 +13,30 @@
 
 - name: Allow OpenSSH on UFW
   become: yes
-  ufw:
+  community.general.ufw:
     rule: allow
     name: OpenSSH
   tags:
-    - firewall, openssh
+    - firewall
+    - openssh
 
 - name: Enable UFW
   become: yes
-  ufw:
+  community.general.ufw:
     state: enabled
   tags:
     - firewall
 
 - name: Set UFW logging
   become: yes
-  ufw:
+  community.general.ufw:
     logging: 'on'
   tags:
     - firewall
 
 - name: Enable UFW at startup
   become: yes
-  systemd:
+  ansible.builtin.systemd:
     state: started
     name: ufw
   tags:

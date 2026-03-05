@@ -1,0 +1,12 @@
+---
+
+- name: APT update
+  become: yes
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: Install prerequisites
+  become: yes
+  ansible.builtin.apt:
+    name: "{{ list_of_prerequisites }}"
+    state: present

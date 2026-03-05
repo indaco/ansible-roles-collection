@@ -3,7 +3,7 @@
 
 - name: Ensure dependencies are installed
   become: yes
-  apt:
+  ansible.builtin.apt:
     name:
       - perl
       - libnet-ssleay-perl
@@ -12,48 +12,46 @@
       - libpam-runtime
       - libio-pty-perl
       - apt-show-versions
-      - python
+      - python3
       - apt-transport-https
       - gnupg2
       - ufw
     state: present
     autoclean: yes
   tags:
-    - packages, webmin
+    - packages
+    - webmin
 
-- name: Check if webmin.deb package is already installed
-  command: 'dpkg-query -W {{ webmin_deb_file }}'
+- name: Check if webmin is already installed
+  ansible.builtin.command: dpkg-query -W webmin
   register: webmin_package_check_deb
   failed_when: webmin_package_check_deb.rc > 1
   changed_when: webmin_package_check_deb.rc == 1
   tags:
-    - packages, webmin
+    - packages
+    - webmin
 
-- include_tasks: raspberrypi.yml
-  when: '"arm" in ansible_architecture'
+- name: Include architecture-specific tasks for ARM
+  ansible.builtin.include_tasks: raspberrypi.yml
+  when: '"arm" in ansible_architecture or ansible_architecture == "aarch64"'
 
-- include_tasks: debian.yml
-  when:  '"x86_64" in ansible_architecture'
+- name: Include architecture-specific tasks for x86_64
+  ansible.builtin.include_tasks: debian.yml
+  when: ansible_architecture == "x86_64"
 
 - name: Allow Webmin default port on UFW
   become: yes
-  ufw:
+  community.general.ufw:
     rule: allow
     port: "{{ webmin_port }}"
     proto: tcp
   tags:
-    - firewall, webmin
-
-- name: Disable UFW
-  become: yes
-  ufw:
-    state: disabled
-  tags:
     - firewall
+    - webmin
 
-- name: Enable UFW
+- name: Reload UFW
   become: yes
-  ufw:
+  community.general.ufw:
     state: enabled
   tags:
     - firewall

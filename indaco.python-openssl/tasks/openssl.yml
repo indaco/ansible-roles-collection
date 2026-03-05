@@ -1,35 +1,35 @@
 ---
 
 - name: Check if OpenSSL is already installed
-  stat:
+  ansible.builtin.stat:
     path: '/usr/src/{{ openssl_dir }}'
   register: check_openssl_dir
 
 - name: Download and Extract OpenSSL source
   become: yes
-  unarchive:
+  ansible.builtin.unarchive:
     src: '{{ openssl_download_url }}'
     dest: '/usr/src/'
     remote_src: yes
-  when: check_openssl_dir.stat.exists == False
+  when: not check_openssl_dir.stat.exists
 
 - name: Run OpenSSL Configuration
   become: yes
-  shell: ./config shared --prefix=/usr/local/
+  ansible.builtin.shell: ./config shared --prefix=/usr/local/
   args:
     chdir: '/usr/src/{{ openssl_dir }}'
-  when: check_openssl_dir.stat.exists == False
+  when: not check_openssl_dir.stat.exists
 
 - name: Run OpenSSL make
   become: yes
-  shell: make -j 4
+  ansible.builtin.shell: make -j {{ ansible_processor_vcpus }}
   args:
     chdir: '/usr/src/{{ openssl_dir }}'
-  when: check_openssl_dir.stat.exists == False
+  when: not check_openssl_dir.stat.exists
 
 - name: Run OpenSSL make install
   become: yes
-  shell: make install
+  ansible.builtin.shell: make install
   args:
     chdir: '/usr/src/{{ openssl_dir }}'
-  when: check_openssl_dir.stat.exists == False
+  when: not check_openssl_dir.stat.exists

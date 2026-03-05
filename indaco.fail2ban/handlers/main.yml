@@ -3,4 +3,6 @@
 
 - name: restart fail2ban
   become: yes
-  service: name=fail2ban state=restarted
+  ansible.builtin.systemd:
+    name: fail2ban
+    state: restarted
