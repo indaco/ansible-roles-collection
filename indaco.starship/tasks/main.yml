@@ -1,0 +1,66 @@
+---
+# tasks file for roles/indaco.starship
+
+- name: Install starship via official installer
+  become: yes
+  ansible.builtin.shell: curl -fsSL https://starship.rs/install.sh | sh -s -- --yes
+  args:
+    creates: /usr/local/bin/starship
+  tags:
+    - packages
+    - starship
+
+- name: Get the shell for {{ ansible_user }}
+  ansible.builtin.command: getent passwd {{ ansible_user }}
+  register: shell_output
+  changed_when: false
+
+- name: Add starship init to .bashrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.bashrc"
+    line: 'eval "$(starship init bash)"'
+    regexp: 'starship init bash'
+    insertafter: EOF
+  when: '"/bash" in shell_output.stdout'
+  tags:
+    - starship
+
+- name: Add starship init to .zshrc
+  ansible.builtin.lineinfile:
+    path: "/home/{{ ansible_user }}/.zshrc"
+    line: 'eval "$(starship init zsh)"'
+    regexp: 'starship init zsh'
+    insertafter: EOF
+  when: '"/zsh" in shell_output.stdout'
+  tags:
+    - starship
+
+- name: Create starship config directory
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}/.config"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0755'
+  tags:
+    - starship
+
+- name: Deploy starship configuration
+  ansible.builtin.template:
+    src: starship.toml.j2
+    dest: "/home/{{ ansible_user }}/.config/starship.toml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+  when: starship_config is defined
+  tags:
+    - starship
+
+- name: Show starship version
+  ansible.builtin.command: starship --version
+  register: starship_version
+  changed_when: false
+
+- name: Display starship version
+  ansible.builtin.debug:
+    var: starship_version.stdout_lines[0]

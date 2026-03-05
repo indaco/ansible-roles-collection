@@ -1,0 +1,9 @@
+---
+# defaults file for roles/indaco.starship
+
+# Set starship_config to a multiline TOML string to deploy a custom config.
+# Example:
+#   starship_config: |
+#     [character]
+#     success_symbol = "[>](bold green)"
+# starship_config:

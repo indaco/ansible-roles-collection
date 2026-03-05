@@ -1,0 +1,22 @@
+galaxy_info:
+  author: indaco
+  description: Install Starship cross-shell prompt and configure it for the user's shell
+
+  license: CC-BY-4.0
+
+  min_ansible_version: 2.17
+
+  platforms:
+    - name: Raspian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+
+  galaxy_tags:
+    - starship
+    - prompt
+    - shell
+
+dependencies: []
