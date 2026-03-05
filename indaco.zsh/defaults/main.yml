@@ -1,0 +1,4 @@
+---
+# defaults file for roles/indaco.zsh
+
+zsh_set_default_shell: true
