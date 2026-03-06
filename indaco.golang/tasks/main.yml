@@ -26,7 +26,7 @@
 
 - name: Create GOHOME for Go development
   ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/golang/src"
+    path: "~{{ ansible_user }}/golang/src"
     state: directory
     recurse: yes
     owner: "{{ ansible_user }}"
@@ -42,21 +42,21 @@
 
 - name: Add Go bin to PATH in .bashrc
   ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_user }}/.bashrc"
+    path: "~{{ ansible_user }}/.bashrc"
     regexp: "^export PATH=.*go/bin"
     line: "export PATH=$HOME/bin:/usr/local/bin:/usr/local/go/bin:$PATH"
   when: '"/bash" in shell_output.stdout and golang_version in check_go_version.stdout'
 
 - name: Add Go bin to PATH in .zshrc
   ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_user }}/.zshrc"
+    path: "~{{ ansible_user }}/.zshrc"
     regexp: "^export PATH=.*go/bin"
     line: "export PATH=$HOME/bin:/usr/local/bin:/usr/local/go/bin:$PATH"
   when: '"/zsh" in shell_output.stdout and golang_version in check_go_version.stdout'
 
 - name: Add GOPATH variable to shell config
   ansible.builtin.lineinfile:
-    path: '/home/{{ ansible_user }}/{{ "/zsh" in shell_output.stdout | ternary(".zshrc", ".bashrc") }}'
+    path: '~{{ ansible_user }}/{{ ("/zsh" in shell_output.stdout) | ternary(".zshrc", ".bashrc") }}'
     insertafter: "^export PATH="
     state: present
     line: "export GOPATH=$HOME/golang"
