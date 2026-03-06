@@ -17,9 +17,10 @@
 
 - name: Add starship init to .bashrc
   ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_user }}/.bashrc"
+    path: "~{{ ansible_user }}/.bashrc"
     line: 'eval "$(starship init bash)"'
-    regexp: 'starship init bash'
+    regexp: "starship init bash"
+    create: yes
     insertafter: EOF
   when: '"/bash" in shell_output.stdout'
   tags:
@@ -27,9 +28,10 @@
 
 - name: Add starship init to .zshrc
   ansible.builtin.lineinfile:
-    path: "/home/{{ ansible_user }}/.zshrc"
+    path: "~{{ ansible_user }}/.zshrc"
     line: 'eval "$(starship init zsh)"'
-    regexp: 'starship init zsh'
+    regexp: "starship init zsh"
+    create: yes
     insertafter: EOF
   when: '"/zsh" in shell_output.stdout'
   tags:
@@ -37,21 +39,21 @@
 
 - name: Create starship config directory
   ansible.builtin.file:
-    path: "/home/{{ ansible_user }}/.config"
+    path: "~{{ ansible_user }}/.config"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: '0755'
+    mode: "0755"
   tags:
     - starship
 
 - name: Deploy starship configuration
   ansible.builtin.template:
     src: starship.toml.j2
-    dest: "/home/{{ ansible_user }}/.config/starship.toml"
+    dest: "~{{ ansible_user }}/.config/starship.toml"
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
-    mode: '0644'
+    mode: "0644"
   when: starship_config is defined
   tags:
     - starship
