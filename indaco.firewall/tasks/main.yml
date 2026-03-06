@@ -11,14 +11,31 @@
   tags:
     - packages
 
-- name: Allow OpenSSH on UFW
+- name: Set default incoming policy
+  become: yes
+  community.general.ufw:
+    direction: incoming
+    policy: "{{ firewall_default_incoming }}"
+  tags:
+    - firewall
+
+- name: Set default outgoing policy
+  become: yes
+  community.general.ufw:
+    direction: outgoing
+    policy: "{{ firewall_default_outgoing }}"
+  tags:
+    - firewall
+
+- name: Allow TCP ports
   become: yes
   community.general.ufw:
     rule: allow
-    name: OpenSSH
+    port: "{{ item | string }}"
+    proto: tcp
+  loop: "{{ firewall_allowed_tcp_ports }}"
   tags:
     - firewall
-    - openssh
 
 - name: Enable UFW
   become: yes
@@ -30,7 +47,7 @@
 - name: Set UFW logging
   become: yes
   community.general.ufw:
-    logging: 'on'
+    logging: "{{ firewall_logging }}"
   tags:
     - firewall
 
