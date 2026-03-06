@@ -6,7 +6,6 @@
   ansible.builtin.apt:
     name:
       - python3
-      - python3-pip
       - ca-certificates
       - curl
       - gnupg
@@ -18,7 +17,7 @@
   ansible.builtin.file:
     path: /etc/apt/keyrings
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Download Docker GPG key
   become: yes
@@ -30,12 +29,12 @@
   become: yes
   ansible.builtin.file:
     path: /etc/apt/keyrings/docker.gpg
-    mode: '0644'
+    mode: "0644"
 
 - name: Add Docker Repository
   become: yes
   ansible.builtin.apt_repository:
-    repo: '{{ docker_apt_repository }}'
+    repo: "{{ docker_apt_repository }}"
     state: present
     update_cache: true
 
@@ -53,8 +52,8 @@
 - name: Add ansible_user to "docker" group
   become: yes
   ansible.builtin.user:
-    name: '{{ ansible_user }}'
-    groups: 'docker'
+    name: "{{ ansible_user }}"
+    groups: "docker"
     append: yes
   tags:
     - docker
@@ -75,6 +74,6 @@
 
 - name: Install docker Python library
   become: yes
-  ansible.builtin.pip:
-    name: docker
+  ansible.builtin.apt:
+    name: python3-docker
     state: present
