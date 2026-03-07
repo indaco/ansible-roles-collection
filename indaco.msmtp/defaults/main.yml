@@ -1,0 +1,31 @@
+---
+# defaults file for indaco.msmtp
+
+# SMTP account configuration
+msmtp_account_name: "default"
+msmtp_host: "smtp.gmail.com"
+msmtp_port: 587
+msmtp_auth: "on"
+msmtp_tls: "on"
+msmtp_tls_starttls: "on"
+msmtp_tls_trust_file: "/etc/ssl/certs/ca-certificates.crt"
+
+# Authentication credentials
+msmtp_email_login: ""
+msmtp_email_password: ""
+msmtp_from: "{{ msmtp_email_login }}"
+
+# Logging
+msmtp_log_file: "/var/log/msmtp.log"
+
+# Set msmtp as the default sendmail alternative
+msmtp_set_default_mta: true
+
+# Aliases
+msmtp_aliases_file: "/etc/aliases"
+msmtp_aliases:
+  - { user: "default", email: "{{ msmtp_email_login }}" }
+  - { user: "root", email: "{{ msmtp_email_login }}" }
+
+# Additional accounts (list of dicts with: name, host, port, auth, tls, tls_starttls, from, user, password)
+msmtp_accounts: []

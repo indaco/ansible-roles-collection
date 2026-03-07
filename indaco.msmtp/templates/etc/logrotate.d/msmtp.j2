@@ -1,0 +1,11 @@
+{% for item in logrotate_config %}
+{{ item.path }} {
+    {{ item.type | default('daily') }}
+    rotate {{ item.rotate | default(10) }}
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create {{ item.create | default('640 root adm') }}
+}
+{% endfor %}

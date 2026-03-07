@@ -1,0 +1,24 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Check msmtp is installed
+      ansible.builtin.command: msmtp --version
+      changed_when: false
+      register: msmtp_version
+
+    - name: Verify msmtp is available
+      ansible.builtin.assert:
+        that:
+          - msmtp_version.rc == 0
+
+    - name: Check msmtp configuration file exists
+      ansible.builtin.stat:
+        path: /etc/msmtprc
+      register: msmtp_config
+
+    - name: Verify msmtp configuration exists
+      ansible.builtin.assert:
+        that:
+          - msmtp_config.stat.exists

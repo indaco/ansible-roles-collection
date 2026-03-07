@@ -1,0 +1,62 @@
+---
+# tasks file for indaco.msmtp
+
+- name: Install msmtp
+  become: yes
+  ansible.builtin.apt:
+    name: "{{ msmtp_package }}"
+    state: present
+    update_cache: yes
+  tags: ["packages", "msmtp"]
+
+- name: Install msmtp-mta
+  become: yes
+  ansible.builtin.apt:
+    name: "{{ msmtp_mta_package }}"
+    state: present
+  when: msmtp_set_default_mta
+  tags: ["packages", "msmtp"]
+
+- name: Configure msmtp
+  become: yes
+  ansible.builtin.template:
+    src: etc/msmtprc.j2
+    dest: "{{ msmtp_configuration_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - test msmtp configuration
+  tags: ["configuration", "msmtp"]
+
+- name: Create msmtp log file
+  become: yes
+  ansible.builtin.file:
+    path: "{{ msmtp_log_file }}"
+    state: touch
+    owner: root
+    group: adm
+    mode: "0660"
+    modification_time: preserve
+    access_time: preserve
+  tags: ["configuration", "msmtp"]
+
+- name: Configure mail aliases
+  become: yes
+  ansible.builtin.template:
+    src: etc/aliases.j2
+    dest: "{{ msmtp_aliases_file }}"
+    owner: root
+    group: root
+    mode: "0644"
+  tags: ["configuration", "msmtp"]
+
+- name: Configure logrotate for msmtp
+  become: yes
+  ansible.builtin.template:
+    src: etc/logrotate.d/msmtp.j2
+    dest: /etc/logrotate.d/msmtp
+    owner: root
+    group: root
+    mode: "0644"
+  tags: ["configuration", "msmtp"]

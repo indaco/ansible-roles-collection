@@ -1,0 +1,6 @@
+# Mail aliases
+# Managed by Ansible - do not edit manually
+
+{% for alias in msmtp_aliases %}
+{{ alias.user }}: {{ alias.email }}
+{% endfor %}

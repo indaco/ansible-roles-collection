@@ -1,0 +1,12 @@
+---
+# vars file for indaco.msmtp
+
+msmtp_package: msmtp
+msmtp_mta_package: msmtp-mta
+msmtp_configuration_file: /etc/msmtprc
+
+logrotate_config:
+  - path: "/var/log/msmtp.log"
+    type: "daily"
+    rotate: 10
+    create: "640 root adm"

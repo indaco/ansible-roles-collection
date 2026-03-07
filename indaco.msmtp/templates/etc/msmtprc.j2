@@ -1,0 +1,44 @@
+# msmtp configuration file
+# Managed by Ansible - do not edit manually
+
+# Default values for all accounts
+defaults
+auth           {{ msmtp_auth }}
+tls            {{ msmtp_tls }}
+tls_starttls   {{ msmtp_tls_starttls }}
+tls_trust_file {{ msmtp_tls_trust_file }}
+logfile        {{ msmtp_log_file }}
+
+# Primary account
+account        {{ msmtp_account_name }}
+host           {{ msmtp_host }}
+port           {{ msmtp_port }}
+from           {{ msmtp_from }}
+{% if msmtp_email_login and msmtp_email_password %}
+user           {{ msmtp_email_login }}
+password       {{ msmtp_email_password }}
+{% endif %}
+
+{% for account in msmtp_accounts %}
+# Additional account: {{ account.name }}
+account        {{ account.name }}
+host           {{ account.host | default(msmtp_host) }}
+port           {{ account.port | default(msmtp_port) }}
+from           {{ account.from }}
+{% if account.user is defined and account.password is defined %}
+user           {{ account.user }}
+password       {{ account.password }}
+{% endif %}
+{% if account.auth is defined %}
+auth           {{ account.auth }}
+{% endif %}
+{% if account.tls is defined %}
+tls            {{ account.tls }}
+{% endif %}
+{% if account.tls_starttls is defined %}
+tls_starttls   {{ account.tls_starttls }}
+{% endif %}
+
+{% endfor %}
+# Set default account
+account default : {{ msmtp_account_name }}

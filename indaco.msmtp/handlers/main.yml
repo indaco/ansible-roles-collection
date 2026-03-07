@@ -1,0 +1,7 @@
+---
+# handlers file for indaco.msmtp
+
+- name: test msmtp configuration
+  become: yes
+  ansible.builtin.command: msmtp --pretend --host={{ msmtp_host }} --port={{ msmtp_port }}
+  changed_when: false
